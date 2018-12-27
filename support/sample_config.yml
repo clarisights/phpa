@@ -1,0 +1,34 @@
+# info used to manipulate the deployments
+deployment: 'my-deployment'
+context: 'default'
+minReplicas: '1'
+maxReplicas: '4'
+fallbackReplicas: '4'
+# this block has data on how to authenticate with k8s api server
+kubernetes:
+  apiToken: 'my-token'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'server_capacity'
+  # positive means if metrics value is great then threshold then it's good and
+  # we should scale down
+  # negative means if metrics value is great then threshold then it's bad and we should
+  # scale up
+  # if metric value falls under metricThreshold +/- metricMargin the do nothing
+  metricType: 'positive'
+  metricThreshold: '100'
+  metricMargin: '5'
+# used to select and get metrics from metric_server
+metric_server:
+  adaptor: 'graphite'
+  influxdb:
+    host: '10.140.0.8'
+    port: '8086'
+    username: 'admin'
+    password: 'admin'
+    database: 'server_stats'
+    query: "SELECT mean(\"pool_capacity\") FROM \"puma\" WHERE (\"env\" = 'production') AND time >= now() - 10m GROUP BY time(1m)"
+  graphite:
+    host: '10.132.0.5'
+    port: '8013'
+    query: "target=summarize(production.kafka-lag.kafka-cluster-1.topics.*.production_*.lag, '1min', 'avg', false)&from=-10min&until=now&format=json"
