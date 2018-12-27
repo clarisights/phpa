@@ -10,4 +10,16 @@ module PHPA
       super("Unknown Matric Adaptor: #{adaptor_name}")
     end
   end
+
+  class InvalidConfig < StandardError
+    def initialize(msg = "Invalid Config")
+      super
+    end
+  end
+
+  class CommandFailed < StandardError
+    def initialize(msg = "Command failed")
+      super
+    end
+  end
 end

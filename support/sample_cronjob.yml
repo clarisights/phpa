@@ -1,0 +1,24 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+spec:
+  schedule: "* * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: phpa-service-account
+          containers:
+          - name: phpa-svc-env-autoscaler
+            image: gcr.io/flowing-bazaar-726/phpa:latest
+            imagePullPolicy: Always
+            env:
+            - name: PHPA_CONFIG
+              value: '/svc/env/config.yml'
+            args:
+            - ./phpa-cli -f support/sample_config.yml
+            resources:
+              requests:
+                cpu: 100m
+                memory: 250Mi
+          restartPolicy: Never

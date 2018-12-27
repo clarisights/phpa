@@ -4,7 +4,3 @@
 require_relative 'lib/cli'
 
 PHPA::CLI.new(ARGV)
-
-
-
-

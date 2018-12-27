@@ -1,0 +1,29 @@
+version: 'v1'
+kind: 'PHPAConfig'
+# info used to manipulate the k8s object/deployments
+verbose: 'true'
+# cool down time(in seconds) after performing an action aka scale up or down
+actionCooldown: '0'
+deployment:
+  name: 'sidekiq-production-deployment'
+  namespace: 'sidekiq'
+  minReplicas: '1'
+  maxReplicas: '6'
+  fallbackReplicas: '2'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'sidekiq_queue_latency_in_seconds'
+  # positive means if metrics value is greater then threshold
+  # then it's good and we should scale down
+  # negative means if metrics value is greater then threshold
+  # then it's bad and we should scale up
+  # if metric value falls in range Threshold +- margin then do nothing
+  metricType: 'negative'
+  metricThreshold: '180'
+  metricMargin: '120'
+metricServer:
+  adaptor: 'graphite'
+  graphite:
+    host: 'graphite-metrics-1'
+    port: '80'
+    query: "summarize(sumSeries(production.sidekiq.sidekiq_deployment.sidekiq_queues_stats.*.latency), '5min', 'max', false)&from=-45min&until=now"

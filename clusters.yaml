@@ -1,0 +1,5 @@
+clusters:
+  - context: gke_flowing-bazaar-726_europe-west1-b_production-services
+    enabled: true
+  - context: gke_flowing-bazaar-726_europe-west1-d_staging
+    enabled: false

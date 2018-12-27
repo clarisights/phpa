@@ -2,18 +2,13 @@
 
 require 'optparse'
 require 'active_support/core_ext/object/blank'
-require 'awesome_print'
-require 'byebug'
 
-require_relative 'config'
-require_relative 'influx'
-require_relative 'graphite'
+require_relative 'kubernetes_runner'
 require_relative 'helper'
 
 module PHPA
   class CLI
     include Helper
-    REQUIRED_ARGS = [:config_file].freeze
 
     def initialize(args)
       options = {}
@@ -24,26 +19,65 @@ module PHPA
       # any options found there, as well as any parameters for
       # the options.
       option_parser.parse!(args)
+      gracefully_shutdown if options[:quit]
 
-      REQUIRED_ARGS.each do |arg|
-         raise "#{arg} is required" if options[arg].blank?
+      config_file = options[:config_file]
+      if config_file.blank?
+        config_path = ENV['PHPA_CONFIG_PATH'].to_s.strip
+        if config_path.blank?
+          raise InvalidConfig, "No config_path or config_file provided"
+        end
+        process_path(config_path)
+      else
+        runner = runner(config_file)
+        puts runner.act
       end
-
-      process(options)
     end
 
     private
 
-    def process(options)
-      ap options
-      config = PHPA::Config.load(options[:config_file])
-      adaptor = config[:metric_server][:adaptor]
-      metric_server_klass = metric_server_class(adaptor)
-      ap metric_server_klass
-      metric_server_config = config[:metric_server][adaptor.to_sym]
-      ap metric_server_klass.get_metric(metric_server_config)
-      ap PHPA::Influx.get_metric(config[:metric_server][:influxdb])
-      ap PHPA::Graphite.get_metric(config[:metric_server][:graphite])
+    def process_path(config_path)
+      sleep_time = Config.runner_sleep_time
+      log_txt "Running in cluster mode, config_path: #{config_path}"
+      path = File.expand_path(config_path, File.dirname(__FILE__))
+      config_files = Dir[path].sort
+
+      # build runners from config files and keep looping over them
+      runners = runners(config_files)
+      # we need to sleep on boot because sometimes autoscaler(PHPA) will scale down
+      # a deployment, and after that autoscaler(PHPA) will be the only pod running
+      # so k8s will relocate autoscaler(PHPA) to scale down node pool
+      log_txt "Sleeping on boot for #{sleep_time} seconds..."
+      sleep sleep_time
+      loop do
+        cooldown = []
+        acquire_lock
+        runners.each do |runner|
+          result = runner.act
+          cooldown << result[:cooldown]
+        end
+        release_lock
+
+        max_cooldown = cooldown.max
+        log_txt "cooldown: sleeping for #{max_cooldown} seconds"
+        sleep max_cooldown
+        log_txt "Sleeping for #{sleep_time} seconds..."
+        sleep sleep_time
+      end
+    end
+
+    def runners(config_files)
+      runners = []
+      config_files.each do |config_file|
+        runners << runner(config_file)
+      end
+      puts ''
+      return runners
+    end
+
+    def runner(config_file)
+      log_txt "Loading config from: #{config_file}"
+      KubernetesRunner.new(config_file)
     end
 
     def init_option_parser(options)
@@ -53,6 +87,7 @@ module PHPA
         parser.separator "phpa-cli -f config.yml"
         parser.separator ""
         config_file_option(parser, options)
+        quit_option(parser, options)
         help_option(parser)
       end
       return option_parser
@@ -67,8 +102,15 @@ module PHPA
     end
 
     def config_file_option(parser, options)
-      parser.on('-f', '--file FILEPATH', 'specify config file to load') do |filter|
-        options[:config_file] = filter
+      parser.on('-f', '--config-file FILEPATH', 'specify config file to load') do |config_file|
+        options[:config_file] = config_file
+      end
+    end
+
+    def quit_option(parser, options)
+      options[:quit] = false
+      parser.on('--quit', 'Check if PHPA can shutdown') do
+        options[:quit] = true
       end
     end
   end

@@ -1,0 +1,29 @@
+version: 'v1'
+kind: 'PHPAConfig'
+# info used to manipulate the k8s object/deployments
+verbose: 'true'
+# cool down time(in seconds) after performing an action aka scale up or down
+actionCooldown: '0'
+deployment:
+  name: 'production-precomputation-consumer'
+  namespace: 'precomputation-consumer'
+  minReplicas: '1'
+  maxReplicas: '12'
+  fallbackReplicas: '6'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'precomputation_consumer_lag'
+  # positive means if metrics value is greater then threshold
+  # then it's good and we should scale down
+  # negative means if metrics value is greater then threshold
+  # then it's bad and we should scale up
+  # if metric value falls in range Threshold +- margin then do nothing
+  metricType: 'negative'
+  metricThreshold: '1500000'
+  metricMargin: '100000'
+metricServer:
+  adaptor: 'graphite'
+  graphite:
+    host: 'graphite-metrics-1'
+    port: '80'
+    query: "sumSeries(summarize(production.kafka-lag.kafka-cluster-1.topics.*_production.consumer-group.*_precomputation.lag, '30min', 'max', false))&from=-60min&until=now"

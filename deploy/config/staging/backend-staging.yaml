@@ -1,0 +1,31 @@
+version: 'v1'
+kind: 'PHPAConfig'
+# info used to manipulate the k8s object/deployments
+verbose: 'true'
+deployment:
+  name: 'backend-staging-deployment'
+  namespace: 'backend-app'
+  minReplicas: '1'
+  maxReplicas: '4'
+  fallbackReplicas: '2'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'puma_pool_capacity'
+  # positive means if metrics value is greater then threshold
+  # then it's good and we should scale down
+  # negative means if metrics value is greater then threshold
+  # then it's bad and we should scale up
+  # if metric value falls in range Threshold +- margin then do nothing
+  metricType: 'positive'
+  metricThreshold: '16'
+  metricMargin: '8'
+metricServer:
+  adaptor: 'influxdb'
+  influxdb:
+    host: 'metric-server'
+#    host: '10.132.0.59'
+    port: '8086'
+    username: 'admin'
+    password: 'admin'
+    database: 'server_stats'
+    query: "SELECT mean(\"pool_capacity\") FROM \"puma\" WHERE (\"env\" = 'staging') AND time >= now() - 10m GROUP BY time(3m)"

@@ -1,12 +1,16 @@
-# info used to manipulate the deployments
-deployment: 'my-deployment'
-context: 'default'
-minReplicas: '1'
-maxReplicas: '4'
-fallbackReplicas: '4'
-# this block has data on how to authenticate with k8s api server
-kubernetes:
-  apiToken: 'my-token'
+version: 'v1'
+kind: 'PHPAConfig'
+verbose: 'true'
+dryRun: 'true'
+# cool down time(in seconds) after performing an action
+actionCooldown: '300'
+# info used to manipulate the k8s object/deployments
+deployment:
+  name: 'backend-staging-deployment'
+  namespace: 'default'
+  minReplicas: '1'
+  maxReplicas: '4'
+  fallbackReplicas: '2'
 metric:
   # name of metric, used to know what these configs are
   name: 'server_capacity'
@@ -15,20 +19,20 @@ metric:
   # negative means if metrics value is great then threshold then it's bad and we should
   # scale up
   # if metric value falls under metricThreshold +/- metricMargin the do nothing
-  metricType: 'positive'
-  metricThreshold: '100'
-  metricMargin: '5'
+  metricType: 'negative'
+  metricThreshold: '32'
+  metricMargin: '16'
 # used to select and get metrics from metric_server
-metric_server:
-  adaptor: 'graphite'
+metricServer:
+  adaptor: 'influxdb'
   influxdb:
-    host: '10.140.0.8'
+    host: 'metric-server' # 10.132.0.59
     port: '8086'
     username: 'admin'
     password: 'admin'
     database: 'server_stats'
     query: "SELECT mean(\"pool_capacity\") FROM \"puma\" WHERE (\"env\" = 'production') AND time >= now() - 10m GROUP BY time(1m)"
   graphite:
-    host: '10.132.0.5'
+    host: 'graphite-server' # 10.132.0.5
     port: '8013'
     query: "target=summarize(production.kafka-lag.kafka-cluster-1.topics.*.production_*.lag, '1min', 'avg', false)&from=-10min&until=now&format=json"

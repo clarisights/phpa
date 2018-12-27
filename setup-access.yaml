@@ -1,0 +1,38 @@
+# Setup Access to phpa so we can perform operations on cluster
+# https://www.cncf.io/blog/2018/08/01/demystifying-rbac-in-kubernetes/
+# https://medium.com/@lestrrat/configuring-rbac-for-your-kubernetes-service-accounts-c348b64eb242
+# NOTE: to apply these user need to be cluster-admin
+# for GKE run this
+# kubectl create clusterrolebinding cluster-admin-binding-<your name> --clusterrole=cluster-admin --user=$(gcloud config get-value core/account)
+---
+# service account will be used by PHPA
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: phpa-service-account
+---
+# used to control operations
+# see this for big list https://github.com/kubernetes/kubernetes/blob/master/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/testdata/cluster-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: phpa-cluster-role
+rules:
+- apiGroups: ["extensions"]
+  resources: ["deployments", "deployments/scale"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+---
+# link ClusterRole to ServiceAccount using ClusterRoleBinding
+# it will allow cluster level operations to our service account
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: phpa-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: phpa-service-account
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: phpa-cluster-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staging-autoscaler
+  labels:
+    app: phpa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpa
+  template:
+    metadata:
+      labels:
+        app: phpa
+    spec:
+      serviceAccountName: phpa-service-account
+      terminationGracePeriodSeconds: 200
+      containers:
+      - name: phpa
+        image: gcr.io/flowing-bazaar-726/phpa:latest
+        imagePullPolicy: Always
+        env:
+        - name: PHPA_CONFIG_PATH
+          value: "../deploy/config/staging/*.yaml"
+        lifecycle:
+          preStop:
+            exec:
+              command: ["bundle", "exec", "./phpa-cli", "--quit"]
