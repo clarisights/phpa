@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: production-services-autoscaler
+  name: staging-autoscaler
   labels:
     app: phpa
 spec:
@@ -18,11 +18,11 @@ spec:
       terminationGracePeriodSeconds: 200
       containers:
       - name: phpa
-        image: gcr.io/flowing-bazaar-726/phpa:latest
+        image: gcr.io/clarisights/phpa:latest
         imagePullPolicy: Always
         env:
         - name: PHPA_CONFIG_PATH
-          value: "../deploy/config/production-services/*.yaml"
+          value: "../deploy/config/staging/*.yaml"
         lifecycle:
           preStop:
             exec:

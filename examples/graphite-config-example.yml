@@ -24,15 +24,8 @@ metric:
   metricMargin: '16'
 # used to select and get metrics from metric_server
 metricServer:
-  adaptor: 'influxdb'
-  influxdb:
-    host: 'metric-server' # 10.132.0.59
-    port: '8086'
-    username: 'admin'
-    password: 'admin'
-    database: 'server_stats'
-    query: "SELECT mean(\"pool_capacity\") FROM \"puma\" WHERE (\"env\" = 'production') AND time >= now() - 10m GROUP BY time(1m)"
+  adaptor: 'graphite'
   graphite:
-    host: 'graphite-server' # 10.132.0.5
-    port: '8013'
+    host: 'graphite-server'
+    port: '8030'
     query: "target=summarize(production.kafka-lag.kafka-cluster-1.topics.*.production_*.lag, '1min', 'avg', false)&from=-10min&until=now&format=json"

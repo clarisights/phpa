@@ -1,4 +1,5 @@
 # Setup Access to phpa so we can perform operations on cluster
+# See: https://electron0zero.xyz/blog/access-control-RBAC-in-kubernetes
 # https://www.cncf.io/blog/2018/08/01/demystifying-rbac-in-kubernetes/
 # https://medium.com/@lestrrat/configuring-rbac-for-your-kubernetes-service-accounts-c348b64eb242
 # NOTE: to apply these user need to be cluster-admin

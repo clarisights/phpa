@@ -22,10 +22,9 @@ metric:
 metricServer:
   adaptor: 'influxdb'
   influxdb:
-    host: 'metric-server'
-#    host: '10.132.0.59'
+    host: 'influx-db-server'
     port: '8086'
-    username: 'admin'
-    password: 'admin'
-    database: 'server_stats'
+    username: ''
+    password: ''
+    database: 'puma_server_stats'
     query: "SELECT mean(\"pool_capacity\") FROM \"puma\" WHERE (\"env\" = 'staging') AND time >= now() - 10m GROUP BY time(3m)"
