@@ -12,6 +12,8 @@ module PHPA
   class KubernetesRunner
     include Helper
 
+    attr_reader :config
+
     def initialize(config_file)
       @config = Config.new(config_file)
     end
@@ -43,13 +45,15 @@ module PHPA
       when :scale_down
         scale_to = current - Config::SCALE_BY
       when :no_current_replicas
-        log_txt 'Failed to get current replica count, doing nothing'
+        log_txt "Failed to get current replica count for deployment " \
+          "#{deployment}, doing nothing"
         result[:failed] = true
         return result
       when :unknown
         # we went to reach to fallback_replicas slowly
         scale_to = fallback_scale_to(current, config.fallback_replicas)
-        log_txt "Action: #{action}, fallback to #{scale_to} replicas"
+        log_txt "Action: #{action}, fallback to #{scale_to} replicas " \
+          "for deployment #{deployment}"
       end
 
       return result if scale_to == current
@@ -66,8 +70,8 @@ module PHPA
         result[:scaled] = true
         result[:cooldown] = config.action_cooldown
       else
-        log_txt "Will not scale to #{scale_to} replicas, " \
-                     "current: #{current}, min: #{min}, max: #{max},  #{msg}"
+        log_txt "Will not scale deployment #{deployment} to #{scale_to} " \
+          "replicas, current: #{current}, min: #{min}, max: #{max},  #{msg}"
       end
       return result
     end
@@ -78,12 +82,12 @@ module PHPA
     # - otherwise it will return scale_to as it is
     def correct_scale_to(current, min, max, scale_to)
       if current < min
-        log_txt "current replicas are less then min replicas, " \
-            "will scale to #{min} replicas"
+        log_txt "current replicas for deployment #{config.deploy_name} " \
+          "are less then min replicas, will scale to #{min} replicas"
         return min
       elsif current > max
-        log_txt "current replicas are more then max replicas, " \
-            "will scale to #{max} replicas"
+        log_txt "current replicas for deployment #{config.deploy_name} " \
+          "are more then max replicas, will scale to #{max} replicas"
         return max
       else
         return scale_to
@@ -99,7 +103,10 @@ module PHPA
       min = threshold - margin
       begin
         current = current_metric_value(config)
-        log_txt "Metric: #{config.metric_name} current: #{current}" if config.verbose
+        if config.verbose
+          log_txt "Metric: #{config.metric_name} current: #{current} for " \
+            "deployment #{config.deploy_name}"
+        end
         metric_status = if (min..max).cover?(current)
                           :ok # metric is in threshold range
                         elsif current < min
@@ -108,7 +115,8 @@ module PHPA
                           :high
                         end
       rescue MetricFetchFailed => e
-        log_txt "Failed to fetch metric from metric_server: #{config.adaptor}"
+        log_txt "Failed to fetch metric from metric_server: " \
+          "#{config.adaptor} for deployment #{config.deploy_name}"
         print_backtrace(e)
         metric_status = :unknown
       end

@@ -2,6 +2,8 @@ version: 'v1'
 kind: 'PHPAConfig'
 # info used to manipulate the k8s object/deployments
 verbose: 'true'
+# interval (in seconds) between consecutive checks of phpa for this deployment
+interval: '300'
 deployment:
   name: 'backend-staging-deployment'
   namespace: 'backend-app'

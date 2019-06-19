@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'parallel'
 require 'active_support/core_ext/object/blank'
 
 require_relative 'kubernetes_runner'
@@ -9,6 +10,8 @@ require_relative 'helper'
 module PHPA
   class CLI
     include Helper
+
+    BOOT_SLEEP_TIME = 120  # seconds
 
     def initialize(args)
       options = {}
@@ -37,7 +40,6 @@ module PHPA
     private
 
     def process_path(config_path)
-      sleep_time = Config.runner_sleep_time
       log_txt "Running in cluster mode, config_path: #{config_path}"
       path = File.expand_path(config_path, File.dirname(__FILE__))
       config_files = Dir[path].sort
@@ -47,22 +49,21 @@ module PHPA
       # we need to sleep on boot because sometimes autoscaler(PHPA) will scale down
       # a deployment, and after that autoscaler(PHPA) will be the only pod running
       # so k8s will relocate autoscaler(PHPA) to scale down node pool
-      log_txt "Sleeping on boot for #{sleep_time} seconds..."
-      sleep sleep_time
-      loop do
-        cooldown = []
-        acquire_lock
-        runners.each do |runner|
+      log_txt "Sleeping on boot for #{BOOT_SLEEP_TIME} seconds..."
+      sleep BOOT_SLEEP_TIME
+      Parallel.each(runners) do |runner|
+        loop do
+          deployment = runner.config.deploy_name
+          interval = runner.config.interval
+          acquire_lock(deployment)
           result = runner.act
-          cooldown << result[:cooldown]
+          release_lock(deployment)
+          cooldown = result[:cooldown]
+          log_txt "#{deployment} deployment cooldown: sleeping " \
+            "for #{cooldown} seconds"
+          log_txt "#{deployment} deployment Sleeping for #{interval} seconds"
+          sleep interval + cooldown
         end
-        release_lock
-
-        max_cooldown = cooldown.max
-        log_txt "cooldown: sleeping for #{max_cooldown} seconds"
-        sleep max_cooldown
-        log_txt "Sleeping for #{sleep_time} seconds..."
-        sleep sleep_time
       end
     end
 

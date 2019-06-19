@@ -8,20 +8,21 @@ require_relative 'helper'
 
 module PHPA
   class Config
-    DEFAULT_RUNNER_SLEEP_TIME = 300 # seconds
+    DEFAULT_INTERVAL = 300 # seconds
     DEFAULT_ACTION_COOLDOWN = 60 # seconds
     RETRY_SLEEP_INCREMENT = 2 # seconds
     METRIC_RETRY = 6 # number of retries for fetching metric
     REPLICA_RETRY = 6 # number of retries for fetching replica count
 
-    LOCKFILE = '/tmp/phpa.lock'.freeze
+    LOCK_DIR = '/tmp/phpa'.freeze
 
     SCALE_BY = 1 # replicas to scale by (down or up)
 
     attr_accessor :version, :verbose, :dry_run, :action_cooldown, \
                   :deploy_name, :namespace, :adaptor, :server, \
                   :min_replicas, :max_replicas, :fallback_replicas, \
-                  :metric_name, :metric_type, :metric_threshold, :metric_margin
+                  :metric_name, :metric_type, :metric_threshold, :metric_margin, \
+                  :interval
 
     def initialize(file_path)
       config = YAML.load_file(file_path)
@@ -34,12 +35,10 @@ module PHPA
 
       @verbose = config[:verbose] == 'true' ? true : false
       @dry_run = config[:dryRun] == 'true' ? true : false
-
-      @action_cooldown = DEFAULT_ACTION_COOLDOWN
-      action_cooldown = config[:actionCooldown]
-      if action_cooldown.present?
-        @action_cooldown = action_cooldown.to_i
-      end
+      action_cooldown = config[:actionCooldown] || DEFAULT_ACTION_COOLDOWN
+      @action_cooldown = action_cooldown.to_i
+      interval = config[:interval] || DEFAULT_INTERVAL
+      @interval = interval.to_i
       @version = config[:version]
 
       @deploy_name = config[:deployment][:name]
@@ -60,14 +59,6 @@ module PHPA
       if @verbose
         puts "=== Config: #{file_path} ==="
         ap config
-      end
-    end
-
-    class << self
-      def runner_sleep_time
-        sleep_time = ENV['PHPA_RUNNER_SLEEP_TIME']
-        sleep_time = DEFAULT_RUNNER_SLEEP_TIME if sleep_time.blank?
-        return sleep_time.to_i
       end
     end
   end

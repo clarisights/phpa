@@ -2,6 +2,8 @@ require 'open3'
 
 module PHPA
   module Helper
+    require 'fileutils'
+
     def metric_server_class(adaptor_name)
       case adaptor_name
       when :graphite
@@ -40,26 +42,38 @@ module PHPA
       end
     end
 
-    def acquire_lock
+    def create_lock_dir
+      FileUtils.mkdir_p(Config::LOCK_DIR)
+    end
+
+    def lock_file_path(deployment_name)
+      return "#{Config::LOCK_DIR}/#{deployment_name}.lock"
+    end
+
+    def acquire_lock(deployment_name)
+      create_lock_dir
       # exit if lockfile already exits
-      if File.exist?(Config::LOCKFILE)
-        log_txt "ERR: Lockfile #{Config::LOCKFILE} already exits"
+      lock_file = lock_file_path(deployment_name)
+      if File.exist?(lock_file)
+        log_txt "ERR: Lockfile #{lock_file} already exits"
         exit(1)
       end
 
-      lockfile = File.new(Config::LOCKFILE, 'w')
+      lockfile = File.new(lock_file, 'w')
       lockfile.write(Process.pid)
       lockfile.close
     end
 
-    def release_lock
-      File.delete(Config::LOCKFILE)
+    def release_lock(deployment_name)
+      lock_file = lock_file_path(deployment_name)
+      File.delete(lock_file)
     end
 
     def gracefully_shutdown
-      # check for lockfile and keep waiting for lockfile to go away
+      # check for any files in lock directory
+      # and keep waiting for lockfile to go away
       loop do
-        if File.exist?(Config::LOCKFILE)
+        if Dir.empty?(Config::LOCK_DIR)
           sleep(2)
         else
           exit(0)
