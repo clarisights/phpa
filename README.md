@@ -14,7 +14,9 @@ This tool takes metrics from our inflxudb and scales a deployment based on those
 At Clarisights we run phpa as k8s deployment in same cluster as the deployment
 phpa is targeting.
 
-1. build and push docker image
+1. build docker image
+`docker build -t phpa:latest https://github.com/clarisights/phpa.git`
+2. push docker image to local config
 2. create config map from file with your phpa config files
 3. mount config map in your phpa cronjob/deployment
 4. deploy

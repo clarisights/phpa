@@ -12,9 +12,6 @@ spec:
           - name: phpa
             image: <docker registry>/phpa:latest
             imagePullPolicy: Always
-            env:
-            - name: PHPA_CONFIG
-              value: '/svc/env/config.yml'
             args:
             - ./phpa-cli -f support/sample_config.yml
             resources:

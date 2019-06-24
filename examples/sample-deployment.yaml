@@ -18,7 +18,7 @@ spec:
       terminationGracePeriodSeconds: 200
       containers:
       - name: phpa
-        image: gcr.io/clarisights/phpa:latest
+        image: <docker registry>/phpa:latest
         imagePullPolicy: Always
         env:
         - name: PHPA_CONFIG_PATH
