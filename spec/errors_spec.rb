@@ -4,7 +4,7 @@ require_relative '../lib/influx.rb'
 require_relative '../lib/kubernetes_runner.rb'
 require_relative '../lib/errors.rb'
 require_relative '../lib/helper.rb'
-require_relative '../lib/../lib/cli.rb'
+require_relative '../lib/cli.rb'
 
 describe 'errors' do
   include PHPA::Helper
