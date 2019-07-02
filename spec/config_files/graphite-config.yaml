@@ -1,0 +1,33 @@
+version: 'v1'
+kind: 'PHPAConfig'
+verbose: 'true'
+dryRun: 'true'
+# cool down time(in seconds) after performing an action
+actionCooldown: '300'
+# interval (in seconds) between consecutive checks of phpa for this deployment
+interval: '300'
+# info used to manipulate the k8s object/deployments
+deployment:
+  name: 'backend-staging-deployment'
+  namespace: 'default'
+  minReplicas: '1'
+  maxReplicas: '4'
+  fallbackReplicas: '2'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'server_capacity'
+  # positive means if metrics value is great then threshold then it's good and
+  # we should scale down
+  # negative means if metrics value is great then threshold then it's bad and we should
+  # scale up
+  # if metric value falls under metricThreshold +/- metricMargin the do nothing
+  metricType: 'negative'
+  metricThreshold: '32'
+  metricMargin: '16'
+# used to select and get metrics from metric_server
+metricServer:
+  adaptor: 'graphite'
+  graphite:
+    host: 'graphite-server'
+    port: '8030'
+    query: "target=summarize(production.kafka-lag.kafka-cluster-1.topics.*.production_*.lag, '1min', 'avg', false)&from=-10min&until=now&format=json"
