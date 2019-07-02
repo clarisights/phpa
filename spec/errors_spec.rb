@@ -29,6 +29,12 @@ describe 'errors' do
     expect { PHPA::CLI.new(Shellwords.split('./phpa-cli')) }.to raise_error(PHPA::InvalidConfig)
   end
 
+  it 'test that InvalidConfig exception is raised when kind in config file is not PHPAConfig' do
+    expect do
+      PHPA::CLI.new(Shellwords.split('./phpa-cli spec/config_files/invalid-influx-config.yaml'))
+    end.to raise_error(PHPA::InvalidConfig)
+  end
+
   it 'test that CommandFailed exception is raised when command execution fails' do
     expect { execute_command('kubectl sth') }.to raise_error(PHPA::CommandFailed)
   end
