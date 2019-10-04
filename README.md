@@ -1,6 +1,8 @@
 ## PHPA: Poor man's Horizontal Pod Autoscaler
 
-![banner](./banner.png)
+<p align="center">
+<img src="./banner.png" height="250">
+</p>
 
 PHPA takes metrics from our InfluxDB and Graphite and then scales a deployment based on those metrics. 
 
