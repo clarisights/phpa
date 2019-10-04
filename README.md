@@ -1,5 +1,7 @@
 ## PHPA: Poor man's Horizontal Pod Autoscaler
 
+![banner](./banner.png)
+
 PHPA takes metrics from our InfluxDB and Graphite and then scales a deployment based on those metrics. 
 
 Before building PHPA, we actually looked at [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) but we found that it only scales based on CPU and Memory usage whereas our needs were different. We wanted to scale based on metrics present in our monitoring systems (Graphite and InfluxDB). After looking into custom metrics for HPA, we figured out that it was very complicated, was mostly tied to Prometheus, didn’t have great support for Graphite, and also required knowledge of GoLang.
@@ -46,6 +48,11 @@ We use [Rspec](https://rspec.info/) for testing.
 #### Have questions or problems using PHPA?
 - Create an issue and tag contributors
 
+## Future Plans
+
+Eventually, we would want to migrate PHPA to a Custom Kubernetes Controller 
+and use Kubernetes CRD (CustomResourceDefinition) for PHPAConfig. 
+Along with that having support for more metric server adaptors would be nice to have as well.
 
 ## Other Info
 - [Slides from talk on PHPA at Bangalore Ruby Meet-up](https://docs.google.com/presentation/d/1zs-3T3XUiI6GgTaqFHNTbefZ5xaiM8ZJGGNcZ6G0EcU/edit?usp=sharing)
