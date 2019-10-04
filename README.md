@@ -23,5 +23,17 @@ phpa is targeting.
 
 look in examples folder for some example configs and deployment
 
+## Contributing
+
+We welcome contributions, here are steps on how to contribute
+
+1. fork this repo
+2. create a branch and add your features
+3. Send a Pull requests and tag contributors for review
+
+#### Have questions or problems using PHPA?
+- Create an issues and tag contributors
+
+
 ## Other Info
-- [Slides from Talk at Ruby Meet-up](https://docs.google.com/presentation/d/1zs-3T3XUiI6GgTaqFHNTbefZ5xaiM8ZJGGNcZ6G0EcU/edit?usp=sharing)
+- [Slides from Talk at Bangalore Ruby Meet-up](https://docs.google.com/presentation/d/1zs-3T3XUiI6GgTaqFHNTbefZ5xaiM8ZJGGNcZ6G0EcU/edit?usp=sharing)
