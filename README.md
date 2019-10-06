@@ -4,13 +4,16 @@
 <img src="./banner.png" height="250">
 </p>
 
-PHPA takes metrics from our InfluxDB and Graphite and then scales a deployment based on those metrics. 
+PHPA takes metrics from our InfluxDB and Graphite and then scales a deployment based on those metrics.
 
-Before building PHPA, we actually looked at [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) but we found that it only scales based on CPU and Memory usage whereas our needs were different. We wanted to scale based on metrics present in our monitoring systems (Graphite and InfluxDB). After looking into custom metrics for HPA, we figured out that it was very complicated, was mostly tied to Prometheus, didn’t have great support for Graphite, and also required knowledge of GoLang.
+Before building PHPA, we actually looked at [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) but we found that it only scales based on CPU and Memory usage whereas our needs were different. We wanted to scale based on metrics present in our monitoring systems (Graphite and InfluxDB). After looking into custom metrics for HPA, we figured out that it was very complicated, was mostly tied to Prometheus, didn't have great support for Graphite, and also required knowledge of GoLang.
 
 Also during the time, Knative was released. After looking into it, we figured out that it was still in alpha and required running multiple components, which would eventually result in operational complexity.
 
 Hence, we decided to build *PHPA*.
+
+Read more on how we built PHPA on our blog: [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://journal.clarisights.com/phpa-kubernetes-pod-autoscaler)
+
 
 # Deployment
 ## Service Account (One Time Setup)
@@ -52,8 +55,8 @@ We use [Rspec](https://rspec.info/) for testing.
 
 ## Future Plans
 
-Eventually, we would want to migrate PHPA to a Custom Kubernetes Controller 
-and use Kubernetes CRD (CustomResourceDefinition) for PHPAConfig. 
+Eventually, we would want to migrate PHPA to a Custom Kubernetes Controller
+and use Kubernetes CRD (CustomResourceDefinition) for PHPAConfig.
 Along with that having support for more metric server adaptors would be nice to have as well.
 
 ## Other Info
