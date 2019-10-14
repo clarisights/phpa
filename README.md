@@ -60,4 +60,5 @@ and use Kubernetes CRD (CustomResourceDefinition) for PHPAConfig.
 Along with that having support for more metric server adaptors would be nice to have as well.
 
 ## Other Info
+- [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://journal.clarisights.com/phpa-kubernetes-pod-autoscaler)
 - [Slides from talk on PHPA at Bangalore Ruby Meet-up](https://docs.google.com/presentation/d/1zs-3T3XUiI6GgTaqFHNTbefZ5xaiM8ZJGGNcZ6G0EcU/edit?usp=sharing)
