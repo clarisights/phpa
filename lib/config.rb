@@ -22,7 +22,7 @@ module PHPA
                   :deploy_name, :namespace, :adaptor, :server, \
                   :min_replicas, :max_replicas, :fallback_replicas, \
                   :metric_name, :metric_type, :metric_threshold, :metric_margin, \
-                  :interval
+                  :interval, :fallback_enabled
 
     def initialize(file_path)
       config = YAML.load_file(file_path)
@@ -35,6 +35,7 @@ module PHPA
 
       @verbose = config[:verbose] == 'true' ? true : false
       @dry_run = config[:dryRun] == 'true' ? true : false
+      @fallback_enabled = config[:fallbackEnabled] == 'false' ? false : true
       action_cooldown = config[:actionCooldown] || DEFAULT_ACTION_COOLDOWN
       @action_cooldown = action_cooldown.to_i
       interval = config[:interval] || DEFAULT_INTERVAL

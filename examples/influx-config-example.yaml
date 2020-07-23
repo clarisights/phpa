@@ -4,6 +4,7 @@ kind: 'PHPAConfig'
 verbose: 'true'
 # interval (in seconds) between consecutive checks of phpa for this deployment
 interval: '300'
+fallbackEnabled: 'false'
 deployment:
   name: 'backend-staging-deployment'
   namespace: 'backend-app'

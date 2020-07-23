@@ -2,6 +2,7 @@ version: 'v1'
 kind: 'PHPAConfig'
 verbose: 'true'
 dryRun: 'true'
+fallbackEnabled: 'false'
 # cool down time(in seconds) after performing an action
 actionCooldown: '300'
 # interval (in seconds) between consecutive checks of phpa for this deployment
