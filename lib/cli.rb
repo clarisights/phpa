@@ -51,7 +51,7 @@ module PHPA
       # so k8s will relocate autoscaler(PHPA) to scale down node pool
       log_txt "Sleeping on boot for #{BOOT_SLEEP_TIME} seconds..."
       sleep BOOT_SLEEP_TIME
-      Parallel.each(runners) do |runner|
+      Parallel.each(runners, in_process: runners.length) do |runner|
         loop do
           deployment = runner.config.deploy_name
           interval = runner.config.interval
