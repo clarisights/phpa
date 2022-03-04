@@ -8,7 +8,7 @@ require_relative 'helper'
 
 module PHPA
   class Config
-    SUPPORTED_CONTROLLERS = %i[deployment job statefulset].freeze
+    SUPPORTED_CONTROLLERS = %i[deployment replicaset statefulset].freeze
     DEFAULT_INTERVAL = 300 # seconds
     DEFAULT_ACTION_COOLDOWN = 60 # seconds
     RETRY_SLEEP_INCREMENT = 2 # seconds
