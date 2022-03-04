@@ -47,21 +47,22 @@ module PHPA
       # build runners from config files and keep looping over them
       runners = runners(config_files)
       # we need to sleep on boot because sometimes autoscaler(PHPA) will scale down
-      # a deployment, and after that autoscaler(PHPA) will be the only pod running
+      # a controller, and after that autoscaler(PHPA) will be the only pod running
       # so k8s will relocate autoscaler(PHPA) to scale down node pool
       log_txt "Sleeping on boot for #{BOOT_SLEEP_TIME} seconds..."
       sleep BOOT_SLEEP_TIME
       Parallel.each(runners) do |runner|
         loop do
-          deployment = runner.config.deploy_name
+          controller_name = runner.config.controller_name
+          controller = runner.config.controller
           interval = runner.config.interval
-          acquire_lock(deployment)
+          acquire_lock(controller_name, controller)
           result = runner.act
-          release_lock(deployment)
+          release_lock(controller_name, controller)
           cooldown = result[:cooldown]
-          log_txt "#{deployment} deployment cooldown: sleeping " \
+          log_txt "#{controller_name} #{controller} cooldown: sleeping " \
             "for #{cooldown} seconds"
-          log_txt "#{deployment} deployment Sleeping for #{interval} seconds"
+          log_txt "#{controller_name} #{controller} Sleeping for #{interval} seconds"
           sleep interval + cooldown
         end
       end

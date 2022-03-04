@@ -27,13 +27,14 @@ module PHPA
     def perform_action(config)
       result = { scaled: false, failed: false, cooldown: 0 }
       action = decide(config)
-      deployment = config.deploy_name
-      log_txt "performing action: #{action} on #{deployment}" if config.verbose
+      controller_name = config.controller_name
+      controller = config.controller
+      log_txt "performing action: #{action} on #{controller}:#{controller_name}" if config.verbose
       scope = "--namespace=#{config.namespace}"
       min = config.min_replicas
       max = config.max_replicas
-      current = current_replicas(deployment, scope)
-      log_txt "current_replicas: #{current} on #{deployment}" if config.verbose
+      current = current_replicas(controller_name, controller, scope)
+      log_txt "current_replicas: #{current} on #{controller}:#{controller_name}" if config.verbose
       action = :no_current_replicas if current.blank?
 
       case action
@@ -45,8 +46,8 @@ module PHPA
       when :scale_down
         scale_to = current - Config::SCALE_BY
       when :no_current_replicas
-        log_txt "Failed to get current replica count for deployment " \
-          "#{deployment}, doing nothing"
+        log_txt "Failed to get current replica count for #{controller} " \
+          "#{controller_name}, doing nothing"
         result[:failed] = true
         return result
       when :unknown
@@ -58,7 +59,7 @@ module PHPA
         # we went to reach to fallback_replicas slowly
         scale_to = fallback_scale_to(current, config.fallback_replicas)
         log_txt "Action: #{action}, fallback to #{scale_to} replicas " \
-          "for deployment #{deployment}"
+          "for #{contoller} #{controller_name}"
       end
 
       return result if scale_to == current
@@ -70,12 +71,12 @@ module PHPA
       scale_to = correct_scale_to(current, min, max, scale_to)
 
       if can_scale?(min, max, scale_to)
-        log_txt "scaling #{deployment} to #{scale_to} replicas #{msg}"
-        scale_it(deployment, scope, scale_to) unless config.dry_run
+        log_txt "scaling #{controller}:#{controller_name} to #{scale_to} replicas #{msg}"
+        scale_it(controller_name, controller, scope, scale_to) unless config.dry_run
         result[:scaled] = true
         result[:cooldown] = config.action_cooldown
       else
-        log_txt "Will not scale deployment #{deployment} to #{scale_to} " \
+        log_txt "Will not scale #{controller} #{controller_name} to #{scale_to} " \
           "replicas, current: #{current}, min: #{min}, max: #{max},  #{msg}"
       end
       return result
@@ -87,11 +88,11 @@ module PHPA
     # - otherwise it will return scale_to as it is
     def correct_scale_to(current, min, max, scale_to)
       if current < min
-        log_txt "current replicas for deployment #{config.deploy_name} " \
+        log_txt "current replicas for #{config.controller} #{config.controller_name} " \
           "are less then min replicas, will scale to #{min} replicas"
         return min
       elsif current > max
-        log_txt "current replicas for deployment #{config.deploy_name} " \
+        log_txt "current replicas for #{config.controller} #{config.controller_name} " \
           "are more then max replicas, will scale to #{max} replicas"
         return max
       else
@@ -110,7 +111,7 @@ module PHPA
         current = current_metric_value(config)
         if config.verbose
           log_txt "Metric: #{config.metric_name} current: #{current} for " \
-            "deployment #{config.deploy_name}"
+            "#{config.controller} #{config.controller_name}"
         end
         metric_status = if (min..max).cover?(current)
                           :ok # metric is in threshold range
@@ -121,7 +122,7 @@ module PHPA
                         end
       rescue MetricFetchFailed => e
         log_txt "Failed to fetch metric from metric_server: " \
-          "#{config.adaptor} for deployment #{config.deploy_name}"
+          "#{config.adaptor} for #{config.controller} #{config.controller_name}"
         print_backtrace(e)
         metric_status = :unknown
       end
