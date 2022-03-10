@@ -33,7 +33,7 @@ module PHPA
       scope = "--namespace=#{config.namespace}"
       min = config.min_replicas
       max = config.max_replicas
-      current = current_replicas(controller_name, controller, scope)
+      current = current_replicas(controller, controller_name , scope)
       log_txt "current_replicas: #{current} on #{controller}:#{controller_name}" if config.verbose
       action = :no_current_replicas if current.blank?
 
@@ -72,7 +72,7 @@ module PHPA
 
       if can_scale?(min, max, scale_to)
         log_txt "scaling #{controller}:#{controller_name} to #{scale_to} replicas #{msg}"
-        scale_it(controller_name, controller, scope, scale_to) unless config.dry_run
+        scale_it(controller, controller_name, scope, scale_to) unless config.dry_run
         result[:scaled] = true
         result[:cooldown] = config.action_cooldown
       else
