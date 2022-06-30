@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'yaml'
-require 'awesome_print'
-require 'active_support/core_ext/hash/keys'
+require "yaml"
+require "awesome_print"
+require "active_support/core_ext/hash/keys"
 
-require_relative 'helper'
+require_relative "helper"
 
 module PHPA
   class Config
@@ -14,7 +14,7 @@ module PHPA
     METRIC_RETRY = 6 # number of retries for fetching metric
     REPLICA_RETRY = 6 # number of retries for fetching replica count
 
-    LOCK_DIR = '/tmp/phpa'.freeze
+    LOCK_DIR = "/tmp/phpa".freeze
 
     SCALE_BY = 1 # replicas to scale by (down or up)
 
@@ -29,13 +29,13 @@ module PHPA
       # TODO: do config validation and print helpful error messages
       config.deep_symbolize_keys!
 
-      if config[:kind].strip != 'PHPAConfig'
+      if config[:kind].strip != "PHPAConfig"
         raise InvalidConfig, "Provided config '#{file_path}' is not valid PHPA config"
       end
 
-      @verbose = config[:verbose] == 'true' ? true : false
-      @dry_run = config[:dryRun] == 'true' ? true : false
-      @fallback_enabled = config[:fallbackEnabled] == 'false' ? false : true
+      @verbose = config[:verbose] == "true" ? true : false
+      @dry_run = config[:dryRun] == "true" ? true : false
+      @fallback_enabled = config[:fallbackEnabled] == "false" ? false : true
       action_cooldown = config[:actionCooldown] || DEFAULT_ACTION_COOLDOWN
       @action_cooldown = action_cooldown.to_i
       interval = config[:interval] || DEFAULT_INTERVAL

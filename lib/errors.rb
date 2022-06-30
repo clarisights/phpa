@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PHPA
   class MetricFetchFailed < StandardError
     def initialize(msg = "Failed to get metric from endpoint")

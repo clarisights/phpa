@@ -1,8 +1,10 @@
-require 'open3'
+# frozen_string_literal: true
+
+require "open3"
 
 module PHPA
   module Helper
-    require 'fileutils'
+    require "fileutils"
 
     def metric_server_class(adaptor_name)
       case adaptor_name
@@ -59,7 +61,7 @@ module PHPA
         exit(1)
       end
 
-      lockfile = File.new(lock_file, 'w')
+      lockfile = File.new(lock_file, "w")
       lockfile.write(Process.pid)
       lockfile.close
     end

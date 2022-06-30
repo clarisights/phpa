@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'yaml'
-require 'active_support/core_ext/hash/keys'
+require "yaml"
+require "active_support/core_ext/hash/keys"
 
-require_relative 'config'
-require_relative 'helper'
-require_relative 'influx'
-require_relative 'graphite'
+require_relative "config"
+require_relative "helper"
+require_relative "influx"
+require_relative "graphite"
 
 module PHPA
   class KubernetesRunner
@@ -64,7 +64,7 @@ module PHPA
       return result if scale_to == current
 
       # scale to desired replicas if current is not equal to desired replicas
-      msg = config.dry_run ? '(dry run)' : ''
+      msg = config.dry_run ? "(dry run)" : ""
 
       # scale_to can fall outside min and max range, correct it
       scale_to = correct_scale_to(current, min, max, scale_to)
@@ -135,13 +135,13 @@ module PHPA
     # if metric value falls under metricThreshold +/- metricMargin the do nothing
     def get_action(type, status)
       case "#{type}_#{status}"
-      when 'positive_ok', 'negative_ok'
+      when "positive_ok", "negative_ok"
         action = :do_nothing
-      when 'positive_low', 'negative_high'
+      when "positive_low", "negative_high"
         # for positive metrics low is bad, ex: puma_capacity
         # for negative metrics high is bad, ex: kafka_consumer_lag
         action = :scale_up
-      when 'positive_high', 'negative_low'
+      when "positive_high", "negative_low"
         # for negative metrics low is good, ex: kafka_consumer_lag
         # for positive metrics high is good, ex: puma_capacity
         action = :scale_down

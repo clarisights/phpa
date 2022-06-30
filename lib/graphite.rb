@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'httparty'
-require_relative 'errors'
-require_relative 'helper'
+require "httparty"
+require_relative "errors"
+require_relative "helper"
 
 module PHPA
   class Graphite
@@ -22,7 +22,7 @@ module PHPA
             msg = "Query returned more then one series, uri: #{uri}"
             raise MetricFetchFailed, msg
           end
-          return data.first['datapoints'].last.first
+          return data.first["datapoints"].last.first
         else
           raise "Failed to get metric: #{response.code}"
         end

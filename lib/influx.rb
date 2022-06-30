@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'influxdb'
-require 'influxdb/client'
-require_relative 'helper'
+require "influxdb"
+require "influxdb/client"
+require_relative "helper"
 
 module PHPA
   class Influx
@@ -25,7 +25,7 @@ module PHPA
           retry: 20
         )
         result = client.query(query)
-        return result.first['values'].map(&:values).last.last
+        return result.first["values"].map(&:values).last.last
       rescue StandardError => e
         # we retry on MetricFetchFailed, so always raise MetricFetchFailed
         raise_metric_fetch_failed(e)
