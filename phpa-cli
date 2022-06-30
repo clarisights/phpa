@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative 'lib/cli'
+require_relative "lib/cli"
 
 PHPA::CLI.new(ARGV)

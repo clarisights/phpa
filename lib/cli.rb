@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'optparse'
-require 'parallel'
-require 'active_support/core_ext/object/blank'
+require "optparse"
+require "parallel"
+require "active_support/core_ext/object/blank"
 
-require_relative 'kubernetes_runner'
-require_relative 'helper'
+require_relative "kubernetes_runner"
+require_relative "helper"
 
 module PHPA
   class CLI
@@ -26,7 +26,7 @@ module PHPA
 
       config_file = options[:config_file]
       if config_file.blank?
-        config_path = ENV['PHPA_CONFIG_PATH'].to_s.strip
+        config_path = ENV["PHPA_CONFIG_PATH"].to_s.strip
         if config_path.blank?
           raise InvalidConfig, "No config_path or config_file provided"
         end
@@ -72,7 +72,7 @@ module PHPA
       config_files.each do |config_file|
         runners << runner(config_file)
       end
-      puts ''
+      puts ""
       return runners
     end
 
@@ -96,21 +96,21 @@ module PHPA
 
     # option definition
     def help_option(parser)
-      parser.on('-h', '--help', 'Display this screen') do
+      parser.on("-h", "--help", "Display this screen") do
         puts parser
         exit
       end
     end
 
     def config_file_option(parser, options)
-      parser.on('-f', '--config-file FILEPATH', 'specify config file to load') do |config_file|
+      parser.on("-f", "--config-file FILEPATH", "specify config file to load") do |config_file|
         options[:config_file] = config_file
       end
     end
 
     def quit_option(parser, options)
       options[:quit] = false
-      parser.on('--quit', 'Check if PHPA can shutdown') do
+      parser.on("--quit", "Check if PHPA can shutdown") do
         options[:quit] = true
       end
     end
