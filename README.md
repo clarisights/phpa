@@ -12,7 +12,7 @@ Also during the time, Knative was released. After looking into it, we figured ou
 
 Hence, we decided to build *PHPA*.
 
-Read more on how we built PHPA on our blog: [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://journal.clarisights.com/phpa-kubernetes-pod-autoscaler)
+Read more on how we built PHPA on our blog: [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://blog.clarisights.com/introducing-phpa-our-kubernetes-horizontal-pod-autoscaler/)
 
 
 # Deployment
@@ -60,5 +60,5 @@ and use Kubernetes CRD (CustomResourceDefinition) for PHPAConfig.
 Along with that having support for more metric server adaptors would be nice to have as well.
 
 ## Other Info
-- [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://journal.clarisights.com/phpa-kubernetes-pod-autoscaler)
+- [Introducing PHPA: Our Kubernetes Horizontal Pod Autoscaler](https://blog.clarisights.com/introducing-phpa-our-kubernetes-horizontal-pod-autoscaler/)
 - [Slides from talk on PHPA at Bangalore Ruby Meet-up](https://docs.google.com/presentation/d/1zs-3T3XUiI6GgTaqFHNTbefZ5xaiM8ZJGGNcZ6G0EcU/edit?usp=sharing)
