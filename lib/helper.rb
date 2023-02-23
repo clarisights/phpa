@@ -97,6 +97,7 @@ module PHPA
         log_txt "current_replicas for '#{deployment}' is sleeping for #{sleep_dur}s"
         sleep sleep_dur
       end
+      return 0
     rescue CommandFailed => e
       print_backtrace(e)
       # return nil to indicate that we failed to fetch current replica count
