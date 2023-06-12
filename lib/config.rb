@@ -8,6 +8,7 @@ require_relative "helper"
 
 module PHPA
   class Config
+    SUPPORTED_CONTROLLERS = %i[deployment replicaset statefulset].freeze
     DEFAULT_INTERVAL = 300 # seconds
     DEFAULT_ACTION_COOLDOWN = 60 # seconds
     RETRY_SLEEP_INCREMENT = 2 # seconds
@@ -22,7 +23,7 @@ module PHPA
                   :deploy_name, :namespace, :adaptor, :server, \
                   :min_replicas, :max_replicas, :fallback_replicas, \
                   :metric_name, :metric_type, :metric_threshold, :metric_margin, \
-                  :interval, :fallback_enabled
+                  :interval, :fallback_enabled, :controller, :controller_name
 
     def initialize(file_path)
       config = YAML.load_file(file_path)
@@ -41,16 +42,26 @@ module PHPA
       interval = config[:interval] || DEFAULT_INTERVAL
       @interval = interval.to_i
       @version = config[:version]
-
-      @deploy_name = config[:deployment][:name]
-      @namespace = config[:deployment][:namespace]
-
       @server = config[:metricServer]
       @adaptor = config[:metricServer][:adaptor].to_sym
 
-      @min_replicas = config[:deployment][:minReplicas].to_i
-      @max_replicas = config[:deployment][:maxReplicas].to_i
-      @fallback_replicas = config[:deployment][:fallbackReplicas].to_i
+      controllers = SUPPORTED_CONTROLLERS & config.keys
+      # TODO: the wording could be better ?
+      if controllers.count > 1
+        raise InvalidConfig,
+              "We currently support only one controller per config. We observe #{controllers.join('&')}"
+      elsif controllers.count < 1
+        raise InvalidConfig,
+              "We expect exactly one controller per config. Found None."
+      end
+      @controller = controllers.first
+      @controller_name = config[@controller][:name]
+      # Deprecation Warning.
+      @deploy_name = @controller_name if @controller == :deployment
+      @namespace = config[@controller][:namespace]
+      @min_replicas = config[@controller][:minReplicas].to_i
+      @max_replicas = config[@controller][:maxReplicas].to_i
+      @fallback_replicas = config[@controller][:fallbackReplicas].to_i
 
       @metric_name = config[:metric][:name]
       @metric_type = config[:metric][:metricType].to_sym
@@ -58,6 +69,7 @@ module PHPA
       @metric_margin = config[:metric][:metricMargin].to_f
 
       if @verbose
+        # Use a logger instead
         puts "=== Config: #{file_path} ==="
         ap config
       end

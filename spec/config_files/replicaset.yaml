@@ -1,0 +1,28 @@
+version: 'v1'
+kind: 'PHPAConfig'
+# interval (in seconds) between consecutive checks of phpa for this deployment
+interval: '300'
+replicaset:
+  name: 'query-db'
+  namespace: 'query-db'
+  minReplicas: '1'
+  maxReplicas: '4'
+  fallbackReplicas: '2'
+metric:
+  # name of metric, used to know what these configs are
+  name: 'query_volume'
+  # negative means if metrics value is greater then threshold
+  # then should scale up
+  # if metric value falls in range Threshold +- margin then do nothing
+  metricType: 'negative'
+  metricThreshold: '40'
+  metricMargin: '20'
+metricServer:
+  adaptor: 'graphite'
+  influxdb:
+    host: 'graphite-db-server'
+    port: '30080'
+    username: 'elden_ping'
+    password: 'grace'
+    database: 'tosoft'
+    query: "sumSeries(summarize(production.query-db.instance-*.query.total.volume, '5min', 'p95', false))&from=-15min&until=now"

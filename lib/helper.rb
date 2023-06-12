@@ -48,14 +48,14 @@ module PHPA
       FileUtils.mkdir_p(Config::LOCK_DIR)
     end
 
-    def lock_file_path(deployment_name)
-      return "#{Config::LOCK_DIR}/#{deployment_name}.lock"
+    def lock_file_path(controller_name, controller)
+      return "#{Config::LOCK_DIR}/#{controller}_#{controller_name}.lock"
     end
 
-    def acquire_lock(deployment_name)
+    def acquire_lock(controller_name, controller)
       create_lock_dir
       # exit if lockfile already exits
-      lock_file = lock_file_path(deployment_name)
+      lock_file = lock_file_path(controller_name, controller)
       if File.exist?(lock_file)
         log_txt "ERR: Lockfile #{lock_file} already exits"
         exit(1)
@@ -66,8 +66,8 @@ module PHPA
       lockfile.close
     end
 
-    def release_lock(deployment_name)
-      lock_file = lock_file_path(deployment_name)
+    def release_lock(controller_name, controller)
+      lock_file = lock_file_path(controller_name, controller)
       File.delete(lock_file)
     end
 
@@ -84,17 +84,19 @@ module PHPA
     end
 
     # helper methods to interact with k8s
-    def current_replicas(deployment, scope)
+    def current_replicas(controller, controller_name, scope)
       sleep_dur = 1
       Config::REPLICA_RETRY.times do
-        command = "kubectl get deploy #{deployment} -o yaml #{scope}"
+        # TODO: we can probably get this value without having to parse the entire
+        #       YAML
+        command = "kubectl get #{controller} #{controller_name} -o yaml #{scope}"
         stdout = execute_command(command, verbose: false)
         yaml = YAML.load(stdout).deep_symbolize_keys!
         result = yaml[:status][:replicas]
         return result if result.present?
 
         sleep_dur += Config::RETRY_SLEEP_INCREMENT
-        log_txt "current_replicas for '#{deployment}' is sleeping for #{sleep_dur}s"
+        log_txt "current_replicas for #{controller}:#{controller_name} is sleeping for #{sleep_dur}s"
         sleep sleep_dur
       end
       return 0
@@ -113,11 +115,11 @@ module PHPA
       return (min..max).cover?(scale_to)
     end
 
-    def scale_it(deployment, scope, replicas)
-      command = "kubectl scale deployment #{deployment} --replicas=#{replicas} #{scope}"
+    def scale_it(controller, controller_name, scope, replicas)
+      command = "kubectl scale #{controller} #{controller_name} --replicas=#{replicas} #{scope}"
       execute_command(command)
     rescue CommandFailed => e
-      log_txt "Failed to scale #{deployment}"
+      log_txt "Failed to scale #{controller}:#{controller_name}"
       print_backtrace(e)
     end
   end
