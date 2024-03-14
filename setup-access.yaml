@@ -15,7 +15,7 @@ metadata:
 # used to control operations
 # see this for big list https://github.com/kubernetes/kubernetes/blob/master/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/testdata/cluster-roles.yaml
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: phpa-cluster-role
 rules:
@@ -26,7 +26,7 @@ rules:
 # link ClusterRole to ServiceAccount using ClusterRoleBinding
 # it will allow cluster level operations to our service account
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: phpa-cluster-role-binding
 subjects:
