@@ -6,6 +6,10 @@ dryRun: 'true'
 actionCooldown: '300'
 # interval (in seconds) between consecutive checks of phpa for this deployment
 interval: '300'
+# Number of replicas to scale up by at a time
+up_step_size: '1'
+# Number of replicas to scale down by at a time
+down_step_size: '1'
 # info used to manipulate the k8s object/deployments
 deployment:
   name: 'backend-staging-deployment'

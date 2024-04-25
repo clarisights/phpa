@@ -32,6 +32,9 @@ module PHPA
       scope = "--namespace=#{config.namespace}"
       min = config.min_replicas
       max = config.max_replicas
+      up_step_size = config.up_step_size
+      down_step_size = config.down_step_size
+
       current = current_replicas(deployment, scope)
       log_txt "current_replicas: #{current} on #{deployment}" if config.verbose
       action = :no_current_replicas if current.blank?
@@ -41,9 +44,9 @@ module PHPA
         # scale to number of current replicas aka do nothing
         scale_to = current
       when :scale_up
-        scale_to = current + Config::SCALE_BY
+        scale_to = current + up_step_size
       when :scale_down
-        scale_to = current - Config::SCALE_BY
+        scale_to = current - down_step_size
       when :no_current_replicas
         log_txt "Failed to get current replica count for deployment " \
           "#{deployment}, doing nothing"
@@ -56,7 +59,8 @@ module PHPA
           scale_to = current
         end
         # we went to reach to fallback_replicas slowly
-        scale_to = fallback_scale_to(current, config.fallback_replicas)
+        scale_to = fallback_scale_to(current, config.fallback_replicas,
+                                     up_step_size, down_step_size)
         log_txt "Action: #{action}, fallback to #{scale_to} replicas " \
           "for deployment #{deployment}"
       end
@@ -168,13 +172,13 @@ module PHPA
       raise MetricFetchFailed
     end
 
-    def fallback_scale_to(current, fallback)
+    def fallback_scale_to(current, fallback, up_step_size, down_step_size)
       # if same, do nothing
       return current if current == fallback
       # if current is less then fallback, scale up
-      return current + Config::SCALE_BY if current < fallback
+      return [current + up_step_size, fallback].min if current < fallback
       # if current is more then fallback, scale down
-      return current - Config::SCALE_BY if current > fallback
+      return [current - down_step_size, fallback].max if current > fallback
     end
   end
 end
