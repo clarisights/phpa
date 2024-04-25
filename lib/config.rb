@@ -13,16 +13,16 @@ module PHPA
     RETRY_SLEEP_INCREMENT = 2 # seconds
     METRIC_RETRY = 6 # number of retries for fetching metric
     REPLICA_RETRY = 6 # number of retries for fetching replica count
+    DEFAULT_UP_STEP_SIZE = 1
+    DEFAULT_DOWN_STEP_SIZE = 1
 
     LOCK_DIR = "/tmp/phpa".freeze
-
-    SCALE_BY = 1 # replicas to scale by (down or up)
 
     attr_accessor :version, :verbose, :dry_run, :action_cooldown, \
                   :deploy_name, :namespace, :adaptor, :server, \
                   :min_replicas, :max_replicas, :fallback_replicas, \
                   :metric_name, :metric_type, :metric_threshold, :metric_margin, \
-                  :interval, :fallback_enabled
+                  :interval, :fallback_enabled, :up_step_size, :down_step_size
 
     def initialize(file_path)
       config = YAML.load_file(file_path)
@@ -51,6 +51,9 @@ module PHPA
       @min_replicas = config[:deployment][:minReplicas].to_i
       @max_replicas = config[:deployment][:maxReplicas].to_i
       @fallback_replicas = config[:deployment][:fallbackReplicas].to_i
+
+      @up_step_size = (config[:up_step_size] || DEFAULT_UP_STEP_SIZE).to_i
+      @down_step_size = (config[:down_step_size] || DEFAULT_DOWN_STEP_SIZE).to_i
 
       @metric_name = config[:metric][:name]
       @metric_type = config[:metric][:metricType].to_sym
