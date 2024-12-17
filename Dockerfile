@@ -1,6 +1,7 @@
-FROM ruby:2.6.3
+FROM ruby:3.3.6
 
-WORKDIR /
+RUN mkdir /phpa
+WORKDIR /phpa
 
 # COPY code, config and install dependencies
 COPY . .
