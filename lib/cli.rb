@@ -62,7 +62,7 @@ module PHPA
           log_txt "#{deployment} deployment cooldown: sleeping " \
             "for #{cooldown} seconds"
           log_txt "#{deployment} deployment Sleeping for #{interval} seconds"
-          sleep interval + cooldown
+          sleep [interval, cooldown].max
         end
       end
     end
