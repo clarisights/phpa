@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "simplecov"
+require "active_support"
+require "active_support/core_ext"
 
 SimpleCov.start do
   add_filter("/spec/")
