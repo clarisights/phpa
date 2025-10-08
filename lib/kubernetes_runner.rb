@@ -53,16 +53,17 @@ module PHPA
         result[:failed] = true
         return result
       when :unknown
-        unless config.fallback_enabled
-          log_txt "Action: #{action}, Not triggering fallback as "\
-            "fallback is not enabled"
+        if config.fallback_enabled
+          # we went to reach to fallback_replicas slowly
+          scale_to = fallback_scale_to(current, config.fallback_replicas,
+                                       up_step_size, down_step_size)
+          log_txt "Action: #{action}, fallback to #{scale_to} replicas " \
+                    "for deployment #{deployment}"
+        else
+          log_txt "Action: #{action}, Not triggering fallback as " \
+                    "fallback is not enabled"
           scale_to = current
         end
-        # we went to reach to fallback_replicas slowly
-        scale_to = fallback_scale_to(current, config.fallback_replicas,
-                                     up_step_size, down_step_size)
-        log_txt "Action: #{action}, fallback to #{scale_to} replicas " \
-          "for deployment #{deployment}"
       end
 
       return result if scale_to == current

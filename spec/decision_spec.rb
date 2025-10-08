@@ -60,4 +60,25 @@ describe "decision" do
       expect(action).to eq(:scale_down)
     end
   end
+
+  context "when action is unknown" do
+    before(:each) do
+      @runner = PHPA::KubernetesRunner.new("spec/config_files/graphite-config.yaml")
+      @config = @runner.config
+      allow(@runner).to receive(:decide).with(anything).and_return(:unknown)
+      allow(@runner).to receive(:current_replicas).with(anything, anything).and_return(1000)
+    end
+
+    it "takes no action when fallback is disabled" do
+      allow(@config).to receive(:fallback_enabled).and_return(false)
+      result = @runner.act
+      expect(result[:scaled]).to be_falsy
+    end
+
+    it "runs fallback when fallback is enabled" do
+      allow(@config).to receive(:fallback_enabled).and_return(true)
+      result = @runner.act
+      expect(result[:scaled]).to be_truthy
+    end
+  end
 end
